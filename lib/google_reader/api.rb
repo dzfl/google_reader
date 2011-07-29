@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+require "json"
 require "net/https"
 require "uri"
 
@@ -69,6 +70,11 @@ class GoogleReader::API
 			res = http.request(req)
 			res.body
 		end
+	end
+
+	def get_json(path, params={})
+		res = get(path, params.merge(:output => 'json'))
+		JSON.parse(res)
 	end
 
 	def post(path, params={})
