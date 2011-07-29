@@ -8,7 +8,7 @@ class GoogleReader::API
 	end
 
 	def login(email, password)
-		login = Login.new(email, password, @source, @service)
+		login = GoogleReader::Login.new(email, password, @source, @service)
 		login.authenticate
 		@auth = login.auth
 		@token = get_token
