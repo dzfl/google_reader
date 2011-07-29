@@ -1,22 +1,59 @@
 # encoding: utf-8
 
+require "net/https"
+require "uri"
+
 class GoogleReader::API
 	def initialize(source, service)
 		@source  = source  || "application-identifier"
 		@service = service || "reader"
-		@end_point = URI("http://www.google.com/reader")
+		@end_point = URI("http://www.google.com")
 	end
 
 	def login(email, password)
-		login = GoogleReader::Login.new(email, password, @source, @service)
-		login.authenticate
-		@auth = login.auth
-		@token = get_token
+		url = URI.parse("https://www.google.com/accounts/ClientLogin")
+		req = Net::HTTP::Post.new(url.request_uri)
+		req.set_form_data(
+			:accountType => 'GOOGLE',
+			:Email       => email,
+			:Passwd      => password,
+			:service     => @service,
+			:source      => @source
+		)
+		http = Net::HTTP.new(url.host, url.port)
+		http.use_ssl = true
+		http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+		http.ca_file = "/etc/ssl/certs/ca-certificates.crt"
+		http.verify_depth = 5
+		http.start do |http|
+			res = http.request(req)
+			case res
+			when Net::HTTPSuccess
+				res.body.split("\n").each do |data|
+					k, v = *data.split('=')
+					case k.downcase
+					when 'sid'
+						@sid = v
+					when 'lsid'
+						@lsid = v
+					when 'auth'
+						@auth = v
+					end
+				end
+			end
+		end
+	#rescue => e
+	#	false
+	#ensure
+	#	true
 	end
 
-	def get_token
-		resbody = get("/api/0/token")
-		resbody.sub(/\/\//, "")
+	def logged_in?
+		!!@auth
+	end
+
+	def token
+		@token ||= get("/reader/api/0/token").sub(/\/\//, "")
 	end
 
 	def authorization_headers
