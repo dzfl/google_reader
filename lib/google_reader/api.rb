@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 require "json"
+require "rexml/document"
 require "net/https"
 require "uri"
 
@@ -8,7 +9,7 @@ class GoogleReader::API
 	def initialize(source, service)
 		@source  = source  || "application-identifier"
 		@service = service || "reader"
-		@end_point = URI("http://www.google.com")
+		@end_point = "http://www.google.com"
 	end
 
 	def login(email, password)
@@ -57,14 +58,26 @@ class GoogleReader::API
 		@token ||= get("/reader/api/0/token").sub(/\/\//, "")
 	end
 
+	##
+	# 登録フィードのリストと、それぞれのタグ共通のstatusを取得する
+	def subscription_list
+		s = get("/reader/api/0/subscription/list", {:output => "json"})
+		json = parse_json(s)
+		json["subscriptions"].map {|i| GoogleReader::Feed.new(i, self)}
+	end
+
+	#private
 	def authorization_headers
 		{"Authorization" => "GoogleLogin auth=#{@auth}"}
 	end
 
-	#private
+	def to_query(params={})
+		params.map {|k,v| "#{k}=#{v}"}.join("&")
+	end
+
 	def get(path, params={})
-		uri = @end_point + path
-		uri.query = URI.encode_www_form(params)
+		uri = URI(@end_point + path)
+		uri.query = to_query(params)
 		req = Net::HTTP::Get.new(uri.request_uri, authorization_headers)
 		Net::HTTP.start(uri.host, uri.port) do |http|
 			res = http.request(req)
@@ -72,19 +85,24 @@ class GoogleReader::API
 		end
 	end
 
-	def get_json(path, params={})
-		res = get(path, params.merge(:output => 'json'))
-		JSON.parse(res)
-	end
-
 	def post(path, params={})
-		uri = @end_point + path
-		data = URI.encode_www_form(params)
+		uri = URI(@end_point + path)
+		data = to_query(params.merge({:t => @token}) )
 		req = Net::HTTP::Post.new(uri.request_uri, authorization_headers)
 		Net::HTTP.start("www.google.com", 80) do |http|
 			res = http.request(req, data)
 			res.body
 		end
 	end
+
+	def parse_xml(str)
+		#RSS::Parser.parse(str.force_encoding('utf-8'))
+		REXML::Document.new(str.force_encoding('utf-8'))
+	end
+
+	def parse_json(str)
+		JSON.parse(str)
+	end
+
 end
 
