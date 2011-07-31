@@ -1,0 +1,12 @@
+require 'autotest/screen'
+Autotest::HOOKS.delete(:interrupt)
+Autotest.add_discovery do
+	"rspec2" # use Autotest::Rspec
+end
+
+Autotest::Screen.statusline = "%{= kw}[%02c] %`%-w%{=b kW}%n %f%t%{-}%+w %= [%H:%l]"
+
+Autotest.add_hook :initialize do |at|
+	at.add_mapping(/lib\/([\w\0-9]+)\.rb$/) {|f, matched| "spec/#{matched[1]}_spec.rb" }
+	at.add_mapping(/lib\/google_reader\/([\w\0-9]+)\.rb$/) {|f, matched| "spec/google_reader/#{matched[1]}_spec.rb" }
+end
