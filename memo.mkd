@@ -1,0 +1,183 @@
+
+
+
+
+memo
+======
+references
+- http://colo-ri.jp/develop/2009/12/google-reader-apiapi.html
+- http://code.google.com/p/pyrfeed/wiki/GoogleReaderAPI
+- http://code.google.com/p/trystero/wiki/API
+- http://code.google.com/p/google-reader-api/w/list
+
+API
+---
+
+### Stream
+
+#### Stream/Contents
+- /api/0/stream/contents/<Id>
+指定IDのアイテム
+
+#### Stream/Items/Ids
+- /api/0/stream/items/ids
+- ex) http://www.google.com/reader/api/0/stream/items/ids?s=feed/http://d.hatena.ne.jp/dzfl/rss&n=10
+- ref) http://code.google.com/p/google-reader-api/wiki/ApiStreamItemsIds
+指定IDのアイテムのID一覧
+
+#### Stream/Items/Contents
+- /api/0/stream/items/contents
+- ex) http://www.google.com/reader/api/0/stream/items/contents?i=-3540250219637523963
+- ref) http://code.google.com/p/google-reader-api/wiki/ApiStreamItemsIds
+指定ItemIDの内容
+
+#### Stream/Items/Count
+- api/0/stream/items/count?s=<Id>
+- ex) http://www.google.com/reader/api/0/stream/items/count?s=feed/http://d.hatena.ne.jp/dzfl/rss
+指定IDが持つItem数
+
+#### Stream/Details
+- /api/0/stream/details?s=<tag-label|tag-feed>&output=xml
+- ex) http://www.google.com/reader/api/0/stream/details?s=user/07331719965587465196/label/%E2%98%85%E2%98%85%E2%98%85%E2%98%86%E2%98%86&output=xml
+feedの購読者数チャート情報などの詳細
+
+
+### Search
+#### Search/Items/Ids
+- /api/0/search/items/ids?q=<STRING>
+- ex) http://www.google.com/reader/api/0/search/items/ids?q=google&output=json
+検索内容にヒットしたアイテムのIDが返る
+
+
+### Subscription
+#### Subscription/List
+- /api/0/subscription/list
+- ex) http://www.google.com/reader/api/0/subscription/list?output=json
+購読フィードの一覧が返るが, フィードそのものが返るわけではない.
+
+#### Subscription/Edit
+- /api/0/subscription/edit
+subscriptionの情報変更
+
+
+### Tag
+#### Edit-Tab
+- /api/0/edit-tag
+知らん
+
+#### Tag/List
+- /api/0/tag/list
+- ex) http://www.google.com/reader/api/0/tag/list
+Tag一覧
+
+### Unread-Count
+- /api/0/unread-count
+- ex) http://www.google.com/reader/api/0/unread-count
+フィード/タグらの未読数が返る
+未読があるものだけ？
+
+### Preference
+#### Preference/List
+- /api/0/preference/list
+- ex) http://www.google.com/reader/api/0/preference/list
+リーダー全般的な設定？
+既読の表示/非表示とか
+
+#### Preference/Set
+- /api/0/preference/set
+
+#### Preference/Stream/List
+- /api/0/preference/stream/list?output=xml
+- ex) http://www.google.com/reader/api/0/preference/stream/list
+subscriptionの設定？
+タグ/フィードの並び・タグの開閉状態・アイテムの並び
+等の情報
+
+タグの並びは,
+    <list name="user/07331719965587465196/state/com.google/root">
+    <object>
+        <string name="id">subscription-ordering</string>
+            <string name="value">
+                699ED5EA580A419A7857D3C0EC2F6FB2588545E42CF5B3B291A60346836BDF27E3EB3B94
+            </string>
+        </object>
+    </list>
+こんな, value が各タグのsortidが並んでる
+
+
+### Friend
+#### Friend/Groups
+- /api/0/friend/groups
+#### Friend/List
+- /api/0/friend/list
+
+### Related/List
+- /api/0/related/list
+- ex) http://www.google.com/reader/api/0/related/list?s=feed/http://d.hatena.ne.jp/dzfl/rss
+関連するソース？
+
+### User-Info
+- /api/0/user-info
+- ex) http://www.google.com/reader/api/0/user-info
+
+
+
+
+##
+/api/0/preference/list?output=xml
+whats this
+reader全般設定？
+
+
+## タグ/フィード/スター 等の未読カウント
+/api/0/unread-count?output=json&all=true
+
+##
+/atom/feed/http://d.hatena.ne.jp/dzfl/rss?n=10&xt=user/-/state/com.google/read
+フィードのアイテム取得
+
+Atom
+----
+
+http://www.google.com/reader/atom/feed/http://d.hatena.ne.jp/dzfl/rss?n=20&xt=user/-/state/com.google/read
+
+etc.
+----
+
+### フィード検索
+http://www.google.com/reader/directory/search?hl=ja&q=dzfl
+reader api とはちょっと違うあれ.
+HTMLが返る
+
+### favicon
+http://www.google.com/s2/favicons?domain=d.hatena.ne.jp
+http://s2.googleusercontent.com/s2/favicons?domain=d.hatena.ne.jp
+
+
+### User Profile
+/api/0/people/profile?u=14290265284323789574&output=json
+
+### Get Friend List
+http://www.google.com/reader/api/0/friend/list?output=json
+
+### Get Recommended feeds:
+http://www.google.com/reader/api/0/recommendation/list?n=6
+なんかなんもでない
+
+
+### 既読にする Mark all feed as read
+/api/0/mark-all-as-read s=feed/[feedUrl] (POST)
+
+### Sort by "magic"
+r=a solo su /items/ids
+
+
+
+
+
+
+
+
+
+
+
