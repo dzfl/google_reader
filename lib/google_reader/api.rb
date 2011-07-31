@@ -2,10 +2,12 @@
 
 require "json"
 require "rexml/document"
+require "rss"
 require "net/https"
 require "uri"
 
 class GoogleReader::API
+	attr_reader :auth
 	def initialize(source, service)
 		@source  = source  || "application-identifier"
 		@service = service || "reader"
@@ -60,10 +62,22 @@ class GoogleReader::API
 
 	##
 	# 登録フィードのリストと、それぞれのタグ共通のstatusを取得する
-	def subscription_list
-		s = get("/reader/api/0/subscription/list", {:output => "json"})
-		json = parse_json(s)
-		json["subscriptions"].map {|i| GoogleReader::Feed.new(i, self)}
+	def subscription
+		@subscription ||= GoogleReader::Subscription.new(self)
+	end
+
+	def fetch_raw_feed(feedurl)
+		get_xml("/reader/atom/feed/#{feedurl}")
+	end
+
+	def get_json(path, params={})
+		d = get(path, params.merge({:output => "json"}) )
+		parse_json(d)
+	end
+
+	def get_xml(path, params={})
+		d = get(path, params)
+		parse_xml(d)
 	end
 
 	#private
@@ -96,8 +110,8 @@ class GoogleReader::API
 	end
 
 	def parse_xml(str)
-		#RSS::Parser.parse(str.force_encoding('utf-8'))
-		REXML::Document.new(str.force_encoding('utf-8'))
+		RSS::Parser.parse(str.force_encoding('utf-8'), false)
+		#REXML::Document.new(str.force_encoding('utf-8'))
 	end
 
 	def parse_json(str)
